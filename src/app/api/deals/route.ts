@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import { z } from "zod";
 import { NextResponse } from "next/server";
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     const budgetPerMeal = (budget / (days * people)).toFixed(2);
 
     const { object } = await generateObject({
-      model: openai("gpt-4o-mini"),
+      model: google("gemini-2.5-flash-lite"),
       schema: budgetRecipesSchema,
       prompt: `Je bent een Nederlandse budgetkook-expert. Maak een weekmenu met recepten.
 
@@ -48,8 +48,7 @@ Vereisten:
 - Minimaal 250g groenten per persoon per dag
 - Varieer in eiwitbronnen (peulvruchten, eieren, kip, vis)
 
-Geef ${Math.min(days, 7)} recepten met realistische kostenramingen.
-Elke recipe moet voedingswaarden bevatten inclusief Schijf van 5 porties.`,
+Geef ${Math.min(days, 5)} recepten. Houd beschrijvingen en instructies kort.`,
     });
 
     return NextResponse.json(object);

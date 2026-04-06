@@ -3,8 +3,10 @@
 import { useState, useRef } from "react";
 import { Camera, Upload, Loader2 } from "lucide-react";
 import type { Recipe } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/context";
 
 export default function ScannerPage() {
+  const { t } = useI18n();
   const [image, setImage] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(false);
@@ -28,7 +30,7 @@ export default function ScannerPage() {
         const data = await res.json();
         setRecipes(data.recipes || []);
       } catch {
-        setError("Er ging iets mis bij het analyseren van de foto.");
+        setError(t.scannerError);
       }
       setLoading(false);
     };
@@ -37,10 +39,8 @@ export default function ScannerPage() {
 
   return (
     <div className="max-w-lg mx-auto px-4 pt-6">
-      <h1 className="text-xl font-bold mb-2">Koelkast Scanner</h1>
-      <p className="text-sm text-muted mb-6">
-        Maak een foto van je koelkast en AI bedenkt recepten met wat je hebt.
-      </p>
+      <h1 className="text-xl font-bold mb-2">{t.scannerTitle}</h1>
+      <p className="text-sm text-muted mb-6">{t.scannerSubtitle}</p>
 
       {!image ? (
         <div className="space-y-4">
@@ -49,9 +49,7 @@ export default function ScannerPage() {
             className="w-full flex flex-col items-center gap-4 rounded-2xl border-2 border-dashed border-border p-12 hover:border-primary transition-colors"
           >
             <Camera size={48} className="text-muted" />
-            <span className="text-muted">
-              Maak een foto of upload een afbeelding
-            </span>
+            <span className="text-muted">{t.scannerPrompt}</span>
           </button>
           <input
             ref={fileRef}
@@ -69,7 +67,7 @@ export default function ScannerPage() {
             className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary py-3 font-semibold text-white"
           >
             <Upload size={18} />
-            Upload foto
+            {t.scannerUpload}
           </button>
         </div>
       ) : (
@@ -77,7 +75,7 @@ export default function ScannerPage() {
           <div className="relative rounded-2xl overflow-hidden">
             <img
               src={image}
-              alt="Koelkast"
+              alt="Fridge"
               className="w-full h-48 object-cover"
             />
             <button
@@ -87,14 +85,14 @@ export default function ScannerPage() {
               }}
               className="absolute top-2 right-2 bg-black/50 text-white rounded-full px-3 py-1 text-sm"
             >
-              Opnieuw
+              {t.scannerRetry}
             </button>
           </div>
 
           {loading && (
             <div className="flex items-center justify-center gap-2 py-8 text-muted">
               <Loader2 size={20} className="animate-spin" />
-              AI analyseert je koelkast...
+              {t.scannerAnalyzing}
             </div>
           )}
 
@@ -102,9 +100,7 @@ export default function ScannerPage() {
 
           {recipes.length > 0 && (
             <div className="space-y-4">
-              <h2 className="font-bold text-lg">
-                Recepten met jouw ingrediënten
-              </h2>
+              <h2 className="font-bold text-lg">{t.scannerResults}</h2>
               {recipes.map((recipe, i) => (
                 <RecipeCard key={i} recipe={recipe} />
               ))}
@@ -117,6 +113,7 @@ export default function ScannerPage() {
 }
 
 function RecipeCard({ recipe }: { recipe: Recipe }) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
 
   return (
@@ -132,14 +129,14 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
           {recipe.estimated_cost && (
             <span>~€{recipe.estimated_cost.toFixed(2)}</span>
           )}
-          <span>{recipe.servings} personen</span>
+          <span>{recipe.servings} {t.persons}</span>
         </div>
       </button>
 
       {open && (
         <div className="mt-4 space-y-3 border-t border-border pt-4">
           <div>
-            <h4 className="text-sm font-semibold mb-1">Ingrediënten</h4>
+            <h4 className="text-sm font-semibold mb-1">{t.scannerIngredients}</h4>
             <ul className="text-sm text-muted space-y-0.5">
               {recipe.ingredients.map((ing, i) => (
                 <li key={i}>• {ing}</li>
@@ -147,7 +144,7 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-semibold mb-1">Bereiding</h4>
+            <h4 className="text-sm font-semibold mb-1">{t.scannerInstructions}</h4>
             <ol className="text-sm text-muted space-y-1 list-decimal list-inside">
               {recipe.instructions.map((step, i) => (
                 <li key={i}>{step}</li>

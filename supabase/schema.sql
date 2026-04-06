@@ -1,11 +1,19 @@
 -- Enable UUID extension
 create extension if not exists "uuid-ossp";
 
--- User profiles (public info for the feed)
+-- User profiles (public info for the feed + onboarding data)
 create table public.profiles (
   id uuid references auth.users(id) on delete cascade primary key,
   display_name text,
   avatar_url text,
+  onboarding_completed boolean default false,
+  household_size integer default 1,
+  household_members jsonb default '[]',  -- [{name, age}]
+  allergies text[] default '{}',
+  diet_preference text default 'geen',   -- geen, vegetarisch, veganistisch, pescotarisch, flexitarisch
+  liked_recipes text[] default '{}',     -- recipe titles from onboarding
+  budget_amount decimal(10,2),
+  budget_period text default 'week',     -- week, maand
   created_at timestamptz default now()
 );
 
@@ -67,6 +75,12 @@ alter table public.recipes enable row level security;
 alter table public.recipe_likes enable row level security;
 alter table public.shopping_list enable row level security;
 
+-- Supermarkets: public read-only
+alter table public.supermarkets enable row level security;
+alter table public.supermarket_products enable row level security;
+create policy "Anyone can read supermarkets" on public.supermarkets for select using (true);
+create policy "Anyone can read supermarket products" on public.supermarket_products for select using (true);
+
 -- Profiles: viewable by all, editable by owner
 create policy "Public profiles" on public.profiles for select using (true);
 create policy "Users can update own profile" on public.profiles for update using (auth.uid() = id);
@@ -96,16 +110,72 @@ create policy "Users can insert own shopping list" on public.shopping_list for i
 create policy "Users can update own shopping list" on public.shopping_list for update using (auth.uid() = user_id);
 create policy "Users can delete own shopping list" on public.shopping_list for delete using (auth.uid() = user_id);
 
+-- Supermarket reference table
+create table public.supermarkets (
+  code text primary key,
+  name text not null,
+  icon_url text,
+  base_url text,
+  total_products integer default 0,
+  last_synced timestamptz
+);
+
+-- Products with daily prices
+create table public.supermarket_products (
+  id bigint generated always as identity primary key,
+  supermarket_code text not null references public.supermarkets(code) on delete cascade,
+  product_name text not null,
+  price decimal(10,2),
+  amount text,
+  product_link text,
+  synced_date date not null default current_date,
+  unique(supermarket_code, product_name, synced_date)
+);
+
 -- Indexes
 create index meals_user_date_idx on public.meals (user_id, date);
 create index recipes_public_idx on public.recipes (is_public, created_at desc);
 create index recipe_likes_recipe_idx on public.recipe_likes (recipe_id);
 create index shopping_list_user_idx on public.shopping_list (user_id, week_start);
+create index idx_sp_supermarket on public.supermarket_products(supermarket_code);
+create index idx_sp_name_search on public.supermarket_products using gin(to_tsvector('dutch', product_name));
+create index idx_sp_synced_date on public.supermarket_products(synced_date);
+create index idx_sp_price on public.supermarket_products(price);
 
--- Function: auto-create profile on signup
+-- Function: auto-create profile on signup (copies household data from inviter)
 create or replace function public.handle_new_user()
 returns trigger as $$
+declare
+  inviter_profile public.profiles%rowtype;
 begin
+  -- Check if this user was invited by someone
+  if new.raw_user_meta_data->>'invited_by' is not null then
+    select * into inviter_profile
+    from public.profiles
+    where id = (new.raw_user_meta_data->>'invited_by')::uuid;
+
+    if found then
+      insert into public.profiles (
+        id, display_name, onboarding_completed,
+        household_size, household_members, allergies,
+        diet_preference, liked_recipes, budget_amount, budget_period
+      ) values (
+        new.id,
+        coalesce(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1)),
+        true,
+        inviter_profile.household_size,
+        inviter_profile.household_members,
+        inviter_profile.allergies,
+        inviter_profile.diet_preference,
+        inviter_profile.liked_recipes,
+        inviter_profile.budget_amount,
+        inviter_profile.budget_period
+      );
+      return new;
+    end if;
+  end if;
+
+  -- Default: create basic profile
   insert into public.profiles (id, display_name)
   values (new.id, coalesce(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1)));
   return new;

@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Heart, Share2, BookmarkPlus, Clock, Users } from "lucide-react";
 import type { Recipe } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/context";
 
 export default function FeedPage() {
+  const { t } = useI18n();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -60,7 +62,7 @@ export default function FeedPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64 text-muted">
-        Laden...
+        {t.loading}
       </div>
     );
   }
@@ -68,19 +70,19 @@ export default function FeedPage() {
   return (
     <div className="max-w-lg mx-auto px-4 pt-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold">Recepten Feed</h1>
+        <h1 className="text-xl font-bold">{t.feedTitle}</h1>
         <a
           href="/feed/new"
           className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white"
         >
-          + Deel recept
+          {t.feedShare}
         </a>
       </div>
 
       {recipes.length === 0 ? (
         <div className="text-center py-16 text-muted">
-          <p className="text-lg mb-2">Nog geen recepten gedeeld</p>
-          <p className="text-sm">Wees de eerste die een recept deelt!</p>
+          <p className="text-lg mb-2">{t.feedEmpty}</p>
+          <p className="text-sm">{t.feedEmptyDesc}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -102,7 +104,7 @@ export default function FeedPage() {
                     {recipe.profiles?.display_name?.[0]?.toUpperCase() || "?"}
                   </div>
                   <span className="text-sm text-muted">
-                    {recipe.profiles?.display_name || "Anoniem"}
+                    {recipe.profiles?.display_name || t.feedAnonymous}
                   </span>
                 </div>
 
@@ -122,7 +124,7 @@ export default function FeedPage() {
                   )}
                   <span className="flex items-center gap-1">
                     <Users size={12} />
-                    {recipe.servings} pers.
+                    {recipe.servings} {t.persPeriod}
                   </span>
                   {recipe.estimated_cost && (
                     <span>€{recipe.estimated_cost.toFixed(2)}</span>
@@ -141,7 +143,7 @@ export default function FeedPage() {
                     ))}
                     {recipe.ingredients.length > 6 && (
                       <span className="text-xs text-muted px-2 py-0.5">
-                        +{recipe.ingredients.length - 6} meer
+                        +{recipe.ingredients.length - 6} {t.feedMore}
                       </span>
                     )}
                   </div>
@@ -169,11 +171,11 @@ export default function FeedPage() {
                     className="flex items-center gap-1 text-sm text-muted hover:text-foreground"
                   >
                     <Share2 size={18} />
-                    Delen
+                    {t.feedShareBtn}
                   </button>
                   <button className="flex items-center gap-1 text-sm text-muted hover:text-primary ml-auto">
                     <BookmarkPlus size={18} />
-                    Opslaan
+                    {t.feedSaveBtn}
                   </button>
                 </div>
               </div>

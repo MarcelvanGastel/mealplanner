@@ -3,10 +3,24 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { format, startOfWeek, addDays } from "date-fns";
-import { nl } from "date-fns/locale";
+import { nl as nlLocale } from "date-fns/locale";
+import { de as deLocale } from "date-fns/locale";
+import { fr as frLocale } from "date-fns/locale";
+import { es as esLocale } from "date-fns/locale";
+import { enUS as enLocale } from "date-fns/locale";
 import { SchijfVan5 } from "@/components/schijf-van-5";
 import type { NutritionInfo, Meal } from "@/lib/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useI18n } from "@/lib/i18n/context";
+import type { Locale } from "@/lib/i18n/translations";
+
+const DATE_LOCALES: Record<Locale, typeof nlLocale> = {
+  nl: nlLocale,
+  en: enLocale,
+  de: deLocale,
+  fr: frLocale,
+  es: esLocale,
+};
 
 const EMPTY_NUTRITION: NutritionInfo = {
   calories: 0,
@@ -22,6 +36,9 @@ const EMPTY_NUTRITION: NutritionInfo = {
 };
 
 export default function NutritionPage() {
+  const { t, locale } = useI18n();
+  const dateLocale = DATE_LOCALES[locale];
+
   const [selectedDate, setSelectedDate] = useState(
     format(new Date(), "yyyy-MM-dd")
   );
@@ -44,7 +61,6 @@ export default function NutritionPage() {
     const mealData = (data || []) as Meal[];
     setMeals(mealData);
 
-    // Aggregate nutrition from all meals of the day
     const totals = mealData.reduce<NutritionInfo>((acc, meal) => {
       if (!meal.nutrition) return acc;
       return {
@@ -78,9 +94,8 @@ export default function NutritionPage() {
 
   return (
     <div className="max-w-lg mx-auto px-4 pt-6">
-      <h1 className="text-xl font-bold mb-6">Voeding & Schijf van 5</h1>
+      <h1 className="text-xl font-bold mb-6">{t.nutritionTitle}</h1>
 
-      {/* Date navigation */}
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={() => navigate(-1)}
@@ -89,7 +104,7 @@ export default function NutritionPage() {
           <ChevronLeft size={20} />
         </button>
         <span className="font-semibold">
-          {format(new Date(selectedDate), "EEEE d MMMM", { locale: nl })}
+          {format(new Date(selectedDate), "EEEE d MMMM", { locale: dateLocale })}
         </span>
         <button
           onClick={() => navigate(1)}
@@ -99,7 +114,6 @@ export default function NutritionPage() {
         </button>
       </div>
 
-      {/* Week dots */}
       <div className="flex justify-center gap-2 mb-8">
         {weekDays.map((d) => (
           <button
@@ -111,23 +125,21 @@ export default function NutritionPage() {
                 : "bg-card border border-border text-muted hover:border-primary"
             }`}
           >
-            {format(new Date(d), "EEE", { locale: nl })[0].toUpperCase()}
+            {format(new Date(d), "EEE", { locale: dateLocale })[0].toUpperCase()}
           </button>
         ))}
       </div>
 
-      {/* Schijf van 5 chart */}
       <div className="rounded-2xl border border-border bg-card p-6 mb-6">
         <SchijfVan5 nutrition={dayNutrition} size={220} />
       </div>
 
-      {/* Macro breakdown */}
       <div className="grid grid-cols-4 gap-3 mb-6">
         {[
-          { label: "Eiwit", value: dayNutrition.protein, unit: "g", color: "text-blue-500" },
-          { label: "Koolh.", value: dayNutrition.carbs, unit: "g", color: "text-yellow-500" },
-          { label: "Vet", value: dayNutrition.fat, unit: "g", color: "text-red-400" },
-          { label: "Vezel", value: dayNutrition.fiber, unit: "g", color: "text-green-500" },
+          { label: t.nutritionProtein, value: dayNutrition.protein, unit: "g", color: "text-blue-500" },
+          { label: t.nutritionCarbs, value: dayNutrition.carbs, unit: "g", color: "text-yellow-500" },
+          { label: t.nutritionFat, value: dayNutrition.fat, unit: "g", color: "text-red-400" },
+          { label: t.nutritionFiber, value: dayNutrition.fiber, unit: "g", color: "text-green-500" },
         ].map((m) => (
           <div
             key={m.label}
@@ -142,14 +154,13 @@ export default function NutritionPage() {
         ))}
       </div>
 
-      {/* Meals of the day */}
       <div className="space-y-2">
         <h2 className="font-semibold text-sm text-muted">
-          Maaltijden vandaag
+          {t.nutritionMealsToday}
         </h2>
         {meals.length === 0 ? (
           <p className="text-sm text-muted py-4 text-center">
-            Geen maaltijden gepland. Voeg ze toe in de Planner.
+            {t.nutritionNoMeals}
           </p>
         ) : (
           meals.map((meal) => (
@@ -160,7 +171,7 @@ export default function NutritionPage() {
               <div>
                 <p className="text-sm font-medium">{meal.title}</p>
                 <p className="text-xs text-muted capitalize">
-                  {meal.meal_type}
+                  {t.plannerMealTypes[meal.meal_type]}
                 </p>
               </div>
               {meal.nutrition && (

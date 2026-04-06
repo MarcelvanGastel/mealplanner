@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useI18n } from "@/lib/i18n/context";
 
 export default function NewRecipePage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     title: "",
@@ -68,28 +70,28 @@ export default function NewRecipePage() {
         <Link href="/feed" className="text-muted hover:text-foreground">
           <ArrowLeft size={20} />
         </Link>
-        <h1 className="text-xl font-bold">Recept delen</h1>
+        <h1 className="text-xl font-bold">{t.newRecipeTitle}</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="text-sm font-medium block mb-1">Titel *</label>
+          <label className="text-sm font-medium block mb-1">{t.newRecipeTitleLabel}</label>
           <input
             type="text"
             value={form.title}
             onChange={(e) => update("title", e.target.value)}
-            placeholder="Bijv. Pasta Pesto met Kip"
+            placeholder={t.newRecipeTitlePlaceholder}
             required
             className="w-full rounded-xl border border-border bg-card px-4 py-3 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
 
         <div>
-          <label className="text-sm font-medium block mb-1">Beschrijving</label>
+          <label className="text-sm font-medium block mb-1">{t.newRecipeDescription}</label>
           <textarea
             value={form.description}
             onChange={(e) => update("description", e.target.value)}
-            placeholder="Kort verhaal over dit recept..."
+            placeholder={t.newRecipeDescPlaceholder}
             rows={2}
             className="w-full rounded-xl border border-border bg-card px-4 py-3 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary resize-none"
           />
@@ -97,12 +99,12 @@ export default function NewRecipePage() {
 
         <div>
           <label className="text-sm font-medium block mb-1">
-            Ingrediënten (1 per regel)
+            {t.newRecipeIngredients}
           </label>
           <textarea
             value={form.ingredients}
             onChange={(e) => update("ingredients", e.target.value)}
-            placeholder={"200g pasta\n1 potje pesto\n2 kipfilets\nHandje pijnboompitten"}
+            placeholder={t.newRecipeIngrPlaceholder}
             rows={5}
             className="w-full rounded-xl border border-border bg-card px-4 py-3 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary resize-none font-mono text-sm"
           />
@@ -110,12 +112,12 @@ export default function NewRecipePage() {
 
         <div>
           <label className="text-sm font-medium block mb-1">
-            Bereiding (1 stap per regel)
+            {t.newRecipeInstructions}
           </label>
           <textarea
             value={form.instructions}
             onChange={(e) => update("instructions", e.target.value)}
-            placeholder={"Kook de pasta\nBak de kip goudbruin\nMeng alles met pesto"}
+            placeholder={t.newRecipeInstrPlaceholder}
             rows={5}
             className="w-full rounded-xl border border-border bg-card px-4 py-3 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary resize-none font-mono text-sm"
           />
@@ -123,7 +125,7 @@ export default function NewRecipePage() {
 
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <label className="text-sm font-medium block mb-1">Bereidingstijd</label>
+            <label className="text-sm font-medium block mb-1">{t.newRecipePrepTime}</label>
             <input
               type="text"
               value={form.prep_time}
@@ -133,7 +135,7 @@ export default function NewRecipePage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium block mb-1">Personen</label>
+            <label className="text-sm font-medium block mb-1">{t.newRecipeServings}</label>
             <input
               type="number"
               value={form.servings}
@@ -142,7 +144,7 @@ export default function NewRecipePage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium block mb-1">Kosten (€)</label>
+            <label className="text-sm font-medium block mb-1">{t.newRecipeCost}</label>
             <input
               type="number"
               step="0.01"
@@ -159,7 +161,7 @@ export default function NewRecipePage() {
           disabled={loading || !form.title.trim()}
           className="w-full rounded-xl bg-primary py-3 font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         >
-          {loading ? "Publiceren..." : "Publiceer recept"}
+          {loading ? t.newRecipePublishing : t.newRecipePublish}
         </button>
       </form>
     </div>

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { X, Sparkles } from "lucide-react";
 import type { MealType } from "@/lib/types";
-import { MEAL_TYPE_LABELS } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/context";
 
 interface AddMealModalProps {
   date: string;
@@ -19,6 +19,7 @@ export function AddMealModal({
   onClose,
   onSaved,
 }: AddMealModalProps) {
+  const { t } = useI18n();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -67,7 +68,7 @@ export function AddMealModal({
       <div className="w-full max-w-lg rounded-t-2xl sm:rounded-2xl bg-card p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="font-bold text-lg">
-            {MEAL_TYPE_LABELS[mealType]} toevoegen
+            {t.plannerMealTypes[mealType]} {t.modalAddMeal}
           </h2>
           <button onClick={onClose} className="text-muted hover:text-foreground">
             <X size={20} />
@@ -78,14 +79,14 @@ export function AddMealModal({
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Wat ga je eten?"
+          placeholder={t.modalWhatEat}
           className="w-full rounded-xl border border-border bg-background px-4 py-3 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
         />
 
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Notities (optioneel)"
+          placeholder={t.modalNotes}
           rows={2}
           className="w-full rounded-xl border border-border bg-background px-4 py-3 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary resize-none"
         />
@@ -96,7 +97,7 @@ export function AddMealModal({
           className="flex items-center gap-2 text-sm text-primary hover:underline disabled:opacity-50"
         >
           <Sparkles size={16} />
-          {aiLoading ? "AI denkt na..." : "AI suggesties"}
+          {aiLoading ? t.modalAiThinking : t.modalAiSuggestions}
         </button>
 
         {suggestions.length > 0 && (
@@ -118,7 +119,7 @@ export function AddMealModal({
           disabled={loading || !title.trim()}
           className="w-full rounded-xl bg-primary py-3 font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         >
-          {loading ? "Opslaan..." : "Opslaan"}
+          {loading ? t.saving : t.save}
         </button>
       </div>
     </div>

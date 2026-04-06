@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la .env*)",
+      "Bash(grep -l \"GOOGLE_GENERATIVE_AI\" .env*)",
+      "Bash(curl -s -X POST http://localhost:3847/api/ai/generate -H \"Content-Type: application/json\" -d '{\"\"mealType\"\":\"\"diner\"\",\"\"date\"\":\"\"2026-04-05\"\"}' --max-time 30)",
+      "Bash(export PATH=\"/usr/local/bin:/opt/homebrew/bin:$PATH\")",
+      "Bash(npx next:*)",
+      "Bash(kill %1)",
+      "Bash(export PATH=/usr/local/bin:/opt/homebrew/bin:$PATH)",
+      "Bash(lsof -ti:3848)",
+      "Bash(xargs kill:*)",
+      "Bash(lsof -ti:3849)",
+      "Bash(source /Users/marcel/Projects/mealplanner/.env.local)",
+      "Bash(curl -s https://generativelanguage.googleapis.com/v1beta/models?key=$GOOGLE_GENERATIVE_AI_API_KEY)",
+      "Bash(lsof -ti:3849 -ti:3848 -ti:3847)",
+      "mcp__Claude_Preview__preview_start",
+      "Read(//usr/local/bin/**)",
+      "Bash(kill 25926)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\")",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(npm install:*)",
+      "Bash(kill 40940)"
+    ]
+  }
+}

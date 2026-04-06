@@ -4,24 +4,26 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   CalendarDays,
-  Camera,
   Tag,
   BookOpen,
-  PieChart,
+  ShoppingCart,
+  User,
 } from "lucide-react";
-
-const links = [
-  { href: "/planner", label: "Planner", icon: CalendarDays },
-  { href: "/scanner", label: "Scanner", icon: Camera },
-  { href: "/deals", label: "Deals", icon: Tag },
-  { href: "/feed", label: "Recepten", icon: BookOpen },
-  { href: "/nutrition", label: "Voeding", icon: PieChart },
-];
+import { useI18n } from "@/lib/i18n/context";
 
 export function BottomNav() {
   const pathname = usePathname();
+  const { t } = useI18n();
 
-  if (pathname?.startsWith("/auth")) return null;
+  if (pathname?.startsWith("/auth") || pathname?.startsWith("/onboarding")) return null;
+
+  const links = [
+    { href: "/planner", label: t.navPlanner, icon: CalendarDays },
+    { href: "/deals", label: t.navDeals, icon: Tag },
+    { href: "/feed", label: t.navRecipes, icon: BookOpen },
+    { href: "/shopping", label: t.navList, icon: ShoppingCart },
+    { href: "/profile", label: t.navProfile, icon: User },
+  ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50">

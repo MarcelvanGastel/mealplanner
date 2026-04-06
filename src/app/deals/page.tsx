@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { Search, Loader2, Tag, ShoppingCart } from "lucide-react";
 import type { Recipe } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/context";
 
 export default function DealsPage() {
+  const { t } = useI18n();
   const [budget, setBudget] = useState("25");
   const [people, setPeople] = useState("2");
   const [days, setDays] = useState("7");
@@ -33,17 +35,14 @@ export default function DealsPage() {
 
   return (
     <div className="max-w-lg mx-auto px-4 pt-6">
-      <h1 className="text-xl font-bold mb-2">Budget Recepten</h1>
-      <p className="text-sm text-muted mb-6">
-        Vind de beste recepten op basis van je budget en huidige supermarkt
-        aanbiedingen.
-      </p>
+      <h1 className="text-xl font-bold mb-2">{t.dealsTitle}</h1>
+      <p className="text-sm text-muted mb-6">{t.dealsSubtitle}</p>
 
       <div className="rounded-2xl border border-border bg-card p-4 space-y-4 mb-6">
         <div className="grid grid-cols-3 gap-3">
           <div>
             <label className="text-xs text-muted block mb-1">
-              Budget (€)
+              {t.dealsBudget}
             </label>
             <input
               type="number"
@@ -53,7 +52,7 @@ export default function DealsPage() {
             />
           </div>
           <div>
-            <label className="text-xs text-muted block mb-1">Personen</label>
+            <label className="text-xs text-muted block mb-1">{t.dealsPersons}</label>
             <input
               type="number"
               value={people}
@@ -62,7 +61,7 @@ export default function DealsPage() {
             />
           </div>
           <div>
-            <label className="text-xs text-muted block mb-1">Dagen</label>
+            <label className="text-xs text-muted block mb-1">{t.dealsDays}</label>
             <input
               type="number"
               value={days}
@@ -80,12 +79,12 @@ export default function DealsPage() {
           {loading ? (
             <>
               <Loader2 size={18} className="animate-spin" />
-              Zoeken...
+              {t.dealsSearching}
             </>
           ) : (
             <>
               <Search size={18} />
-              Zoek budget recepten
+              {t.dealsSearch}
             </>
           )}
         </button>
@@ -95,7 +94,7 @@ export default function DealsPage() {
         <div className="space-y-4">
           <h2 className="font-bold flex items-center gap-2">
             <Tag size={18} className="text-primary" />
-            {recipes.length} recepten gevonden
+            {recipes.length} {t.dealsFound}
           </h2>
           {recipes.map((recipe, i) => (
             <div
@@ -129,12 +128,12 @@ export default function DealsPage() {
 
               <div className="mt-3 flex gap-4 text-xs text-muted">
                 {recipe.prep_time && <span>{recipe.prep_time}</span>}
-                <span>{recipe.servings} personen</span>
+                <span>{recipe.servings} {t.persons}</span>
               </div>
 
               <button className="mt-3 flex items-center gap-1 text-sm text-primary hover:underline">
                 <ShoppingCart size={14} />
-                Voeg toe aan planner
+                {t.dealsAddToPlanner}
               </button>
             </div>
           ))}

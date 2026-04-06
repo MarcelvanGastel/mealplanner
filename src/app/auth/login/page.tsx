@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useI18n } from "@/lib/i18n/context";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const { t } = useI18n();
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -23,7 +25,7 @@ export default function LoginPage() {
     if (error) {
       setMessage(error.message);
     } else {
-      setMessage("Check je e-mail voor de login link!");
+      setMessage(t.authCheckEmail);
     }
     setLoading(false);
   }
@@ -32,10 +34,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-primary">MealPlanner</h1>
-          <p className="mt-2 text-muted">
-            Plan slim, eet gezond, bespaar geld
-          </p>
+          <h1 className="text-3xl font-bold text-primary">{t.authTitle}</h1>
+          <p className="mt-2 text-muted">{t.authSubtitle}</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
@@ -43,7 +43,7 @@ export default function LoginPage() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="je@email.nl"
+            placeholder={t.authEmailPlaceholder}
             required
             className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
@@ -52,7 +52,7 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full rounded-xl bg-primary py-3 font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {loading ? "Bezig..." : "Inloggen met Magic Link"}
+            {loading ? t.authLoading : t.authLogin}
           </button>
         </form>
 
